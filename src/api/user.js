@@ -22,6 +22,14 @@ export const getUserInfo = (token) => {
   })
 }
 
+export const addUserIntoDB = (form) => {
+  return axios.request({
+    url: '/api/user/adduser',
+    data: form,
+    method: 'post'
+  })
+}
+
 export const logout = (token) => {
   return axios.request({
     url: 'logout',

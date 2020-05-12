@@ -110,10 +110,21 @@ export default [
         path: 'user_add',
         name: '添加新用户',
         meta: {
+          hideInMenu: true,
           icon: 'md-grid',
           title: '添加新用户'
         },
         component: () => import('@/view/components/forms/user-info-form.vue')
+      },
+      {
+        path: 'test',
+        name: '测试页',
+        meta: {
+          hideInMenu: true,
+          icon: 'md-grid',
+          title: '测试页'
+        },
+        component: () => import('@/view/mypage/testPage.vue')
       }
     ]
   },
