@@ -55,7 +55,9 @@ import qs from 'qs';
   import Tables from '_c/tables'
   import { getAllUserData } from '@/api/data'
 import { addUserIntoDB } from '@/api/user'
-  export default {
+import {deleteByUserIdFromDB} from "@/api/user";
+
+export default {
     name: 'user_tables_page',
     components: {
       Tables
@@ -80,36 +82,85 @@ import { addUserIntoDB } from '@/api/user'
           { title: '手机号', key: 'phone', editable: true },
           { title: '邮箱', key: 'email', editable: true },
           {
-            title: 'Handle',
+            title: '操作',
             key: 'handle',
-            options: ['delete'],
             button: [
               (h, params, vm) => {
-                return h('Poptip', {
-                  props: {
-                    confirm: true,
-                    title: '你确定要删除吗?'
-                  },
-                  on: {
-                    'on-ok': () => {
-                      vm.$emit('on-delete', params)
-                      vm.$emit('input', params.tableData.filter((item, index) => index !== params.row.initRowIndex))
+                return h('div',[
+                  h('Button', {
+                    props: {
+                      type: 'primary',
+                    },
+                    on: {
+                      click : () => {
+                        this.edit(params.index)
+                      }
                     }
-                  }
-                }, [
-                  h('Button', '自定义删除')
-                ])
+                  }, '编辑'),
+                  h('Poptip', {
+                    props: {
+                      confirm: true,
+                      type: 'error',
+                      title: '你确定要删除此用户吗?'
+                    },
+                    on: {
+                      'on-ok': () => {
+                        this.handleDelete(params.index)
+                      }
+                    }
+                  }, [h('Button', '删除')],)
+                ]);
+
               }
             ]
           }
         ],
-        tableData: []
+        tableData: [],
+
       }
     },
+    inject:['reload'],
     methods: {
-      handleDelete (params) {
-        console.log(params)
+      reload1(){
+        this.reload()
       },
+      flashTable(){
+        getAllUserData().then(res => {
+          this.tableData = res.data.userList;
+          this.tableData.forEach(o => {
+            let status_ = "";
+            switch (o['status']) {
+              case 0:
+                status_ = "学生";
+                break;
+              case 1:
+                status_ = "教师";
+                break;
+              default:
+                status_ = "管理员";
+                break;
+            }
+            o['status'] = status_;
+          })
+        })
+      },
+      handleDelete (index) {
+        let submit = qs.stringify({userId:this.tableData[index].uid});
+        console.log(submit);
+        deleteByUserIdFromDB(submit).then(res => {
+            console.log(res.data);
+            if (res.data.flag) {
+              this.$Notice.success({title: '用户删除成功'});
+              // this.tableData.deleteColumns(index)
+              this.reload1();
+              this.flashTable();
+            } else {
+              this.$Notice.error({title: '用户删除失败,' + res.data.msg});
+            }
+          }
+        )
+      },
+
       exportExcel () {
         this.$refs.tables.exportCsv({
           filename: `table-${(new Date()).valueOf()}.csv`
@@ -136,13 +187,20 @@ import { addUserIntoDB } from '@/api/user'
               this.$Notice.success({title:'用户添加成功'});
               this.$refs['form'].resetFields();
               this.modalVisible=false;
+              this.flashTable();
             }
             else{
               this.$Notice.error({title:'用户添加失败,'+res.data.msg});
             }
           }
         )
-      }
+      },
+      edit (index) {
+        this.$Modal.info({
+          title: '用户信息',
+          content: `ID：${this.tableData[index].uid}<br>用户名：${this.tableData[index].username}<br>姓名：${this.tableData[index].name}<br>邮箱：${this.tableData[index].email}`
+        })
+      },
     },
     mounted () {
       getAllUserData().then(res => {

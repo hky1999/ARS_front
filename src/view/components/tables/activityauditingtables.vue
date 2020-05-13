@@ -1,6 +1,34 @@
 <template>
   <div>
     <Card>
+      <Modal
+        v-model="modalVisible"
+        title="活动信息">
+        <el-tag type="info">活动名:</el-tag>
+        <el-row>
+          <el-col :span="12"><div class="grid-content bg-purple">
+            {{aInfo.aname}}
+          </div></el-col>
+        </el-row>
+        <el-tag type="info">发起者:</el-tag>
+        <el-row>
+          <el-col :span="12"><div class="grid-content bg-purple">
+            {{aStarterName}}
+          </div></el-col>
+        </el-row>
+        <el-tag type="info">活动地点:</el-tag>
+        <el-row>
+          <el-col :span="12"><div class="grid-content bg-purple">
+            {{aInfo.place}}
+          </div></el-col>
+        </el-row>
+        <el-tag type="info">活动描述:</el-tag>
+        <el-row>
+          <el-col :span="12"><div class="grid-content bg-purple">
+            {{aInfo.description}}
+          </div></el-col>
+        </el-row>
+      </Modal>
       <tables ref="tables" editable searchable search-place="top" v-model="tableData" :columns="columns" @on-delete="handleDelete"/>
       <Button style="margin: 10px 0;" type="primary" @click="exportExcel">导出为Csv文件</Button>
     </Card>
@@ -11,6 +39,8 @@
 import qs from 'qs';
 import Tables from '_c/tables'
 import { getActivityDataofStatus } from '@/api/data'
+import { authorizeActivityByAid } from '@/api/activity'
+import { getActivityInfoByAid } from '@/api/activity'
 export default {
   name: 'activity_auditing_tables_page',
   components: {
@@ -18,48 +48,129 @@ export default {
   },
   data () {
     return {
+      modalVisible: false,
       columns: [
-        { title: '活动ID', key: 'aid', sortable: true },
-        { title: '活动名', key: 'aname', sortable: true },
-        { title: '活动发布者ID', key: 'uid', sortable: true },
-        { title: '活动类型', key: 'type', sortable: true },
-        { title: '活动地点', key: 'place', sortable: true },
-        { title: '预计参与人数', key: 'expNum', editable: true },
-        { title: '已参与人数', key: 'joinNum', editable: true },
-        { title: '活动申请时间', key: 'buildTime', editable: true },
-        { title: '活动开始时间', key: 'beginTime', editable: true },
-        { title: '活动结束时间', key: 'endTime', editable: true },
-        { title: '活动状态', key: 'status', editable: true },
-        { title: '审核人id', key: 'auditor', editable: true },
-        { title: '审核时间', key: 'checkTime', editable: true },
+        { title: '活动ID', key: 'aid', sortable: true, width: 100, },
+        { title: '活动名', key: 'aname', sortable: true ,width: 100,},
+        { title: '活动发布者ID', key: 'uid', sortable: true, width: 135, },
+        { title: '活动类型', key: 'type', sortable: true, width: 120, },
+        { title: '活动地点', key: 'place', sortable: true, width: 120, },
+        { title: '预计参与人数', key: 'expNum', editable: true, width: 130, },
+        { title: '已参与人数', key: 'joinNum',sortable: true, editable: true, width: 130, },
+        { title: '申请时间', key: 'buildTime', editable: true, width: 110, },
+        { title: '开始时间', key: 'beginTime', editable: true, width: 110, },
+        { title: '结束时间', key: 'endTime', editable: true, width: 110, },
+        { title: '活动状态', key: 'status', editable: true , width: 100,},
+        { title: '审核人id', key: 'auditor', editable: true, width: 100, },
+        { title: '审核时间', key: 'checkTime', editable: true, width: 110, },
         {
-          title: 'Handle',
+          title: '操作',
           key: 'handle',
-          options: ['delete'],
           button: [
             (h, params, vm) => {
-              return h('Poptip', {
-                props: {
-                  confirm: true,
-                  title: '你确定要删除吗?'
-                },
-                on: {
-                  'on-ok': () => {
-                    vm.$emit('on-delete', params)
-                    vm.$emit('input', params.tableData.filter((item, index) => index !== params.row.initRowIndex))
+              return h('div',[
+                h('Button', {
+                  props: {
+                    size: 'small',
+                    type: 'primary',
+                  },
+                  on: {
+                    click : () => {
+                      this.show(params.index)
+                    }
                   }
-                }
-              }, [
-                h('Button', '自定义删除')
-              ])
+                }, '查看'),
+                h('Poptip', {
+                  props: {
+                    size: 'small',
+                    confirm: true,
+                    title: '你确定要批准这个活动?'
+                  },
+                  on: {
+                    'on-ok': () => {
+                      this.handleOperate(params.index,true)
+                    }
+                  }
+                }, [h('Button', '批准')],),
+                h('Poptip', {
+                  props: {
+                    size: 'small',
+                    confirm: true,
+                    title: '你确定要驳回这个活动?'
+                  },
+                  on: {
+                    'on-ok': () => {
+                      this.handleOperate(params.index,false)
+                    }
+                  }
+                },  [h('Button', '驳回')],),
+              ]);
             }
           ]
         }
       ],
-      tableData: []
+      tableData: [],
+      aInfo:{
+        aid: '',
+        aname:'',
+        uid: '',
+        type: '',
+        place: '',
+        expNum: '',
+        joinNum: '',
+        beginTime: '',
+        endTime: '',
+        buildTime:'',
+        status:'',
+        description:'',
+        auditor:'',
+        checkTime:''
+      },
+      aStarterName:'',
     }
   },
   methods: {
+    flashTable(){
+      let status = qs.stringify({status: 1});
+      getActivityDataofStatus(status).then(res => {
+        console.log(res.data.activityList);
+        this.tableData = res.data.activityList;
+        this.tableData.forEach(o => {
+          let status_ = "";
+          switch (o['status']) {
+            case 2:
+              status_ = "已批准";
+              break;
+            case 3:
+              status_ = "已拒绝";
+              break;
+            case 4:
+              status_ = "在开展";
+              break;
+            case 5:
+              status_ = "已结束";
+              break;
+            default:
+              status_ = "审核中";
+              break;
+          }
+          o['status'] = status_;
+        })
+      })
+    },
+    show(index) {
+      this.modalVisible = true;
+      let aid_ = qs.stringify({activityId: this.tableData[index].aid});
+      getActivityInfoByAid(aid_).then(res => {
+          console.log(res.data.activityInfo);
+          console.log(res.data.starterName);
+          this.aInfo = res.data.activityInfo;
+          this.aStarterName = res.data.starterName;
+        console.log(this.aInfo);
+        console.log(this.aStarterName);
+        }
+      );
+    },
     handleDelete (params) {
       console.log(params)
     },
@@ -67,7 +178,26 @@ export default {
       this.$refs.tables.exportCsv({
         filename: `table-${(new Date()).valueOf()}.csv`
       })
-    }
+    },
+    handleOperate (index, yesorno) {
+      var submit;
+      if(yesorno) {
+        submit = qs.stringify({activityId: this.tableData[index].aid, auditor: '1', operation: 'Yes'});
+      }
+      else{
+        submit = qs.stringify({activityId: this.tableData[index].aid, auditor: '1', operation: 'No'});
+      }
+      console.log(submit);
+      authorizeActivityByAid(submit).then(res => {
+        console.log(res.data);
+        if (res.data.flag) {
+          this.$Notice.success({title: '操作成功'});
+          this.flashTable();
+        } else {
+          this.$Notice.error({title: '操作失败,' + res.data.msg});
+        }
+      })
+    },
   },
   mounted () {
     let status = qs.stringify({status: 1});

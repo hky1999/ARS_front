@@ -30,6 +30,14 @@ export const addUserIntoDB = (form) => {
   })
 }
 
+export const deleteByUserIdFromDB = (userId) => {
+  return axios.request({
+    url: '/api/user/deletebyid',
+    data: userId,
+    method: 'post'
+  })
+}
+
 export const logout = (token) => {
   return axios.request({
     url: 'logout',

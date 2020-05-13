@@ -11,7 +11,9 @@
 #### 活动管理
 
 * 活动通过与拒绝
+  * **已解决**
 * 查看活动详情页面（模态框实现吧）
+  * **已解决**
 * 
 
 #### 用户消息模块的设计
@@ -27,6 +29,13 @@ src/api/user.js
 src/router/router.js
 
 src/view/tables/*tables.vue
+
+用户增加删除
+用户信息查看
+（修改还没
+活动信息查看
+活动审核
+活动驳回
 
 ## Features
 
@@ -79,7 +88,7 @@ git clone https://github.com/iview/iview-admin.git
 npm install
 
 // develop
-npm run dev
+npm run serve
 ```
 
 ## Build
