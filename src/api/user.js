@@ -30,6 +30,30 @@ export const addUserIntoDB = (form) => {
   })
 }
 
+export const getUserInfoByUid = (userId) => {
+  return axios.request({
+    url: '/api/user/selectbyUid',
+    data: userId,
+    method: 'post'
+  })
+}
+
+export const updateUserInfo = (user) => {
+  return axios.request({
+    url: '/api/user/updateUserInfo',
+    data: user,
+    method: 'post'
+  })
+}
+
+export const resetUserPass = (user) => {
+  return axios.request({
+    url: '/api/user/resetPassword',
+    data: user,
+    method: 'post'
+  })
+}
+
 export const deleteByUserIdFromDB = (userId) => {
   return axios.request({
     url: '/api/user/deletebyid',

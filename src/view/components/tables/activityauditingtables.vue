@@ -4,30 +4,25 @@
       <Modal
         v-model="modalVisible"
         title="活动信息">
-        <el-tag type="info">活动名:</el-tag>
-        <el-row>
-          <el-col :span="12"><div class="grid-content bg-purple">
-            {{aInfo.aname}}
-          </div></el-col>
-        </el-row>
-        <el-tag type="info">发起者:</el-tag>
-        <el-row>
-          <el-col :span="12"><div class="grid-content bg-purple">
-            {{aStarterName}}
-          </div></el-col>
-        </el-row>
-        <el-tag type="info">活动地点:</el-tag>
-        <el-row>
-          <el-col :span="12"><div class="grid-content bg-purple">
-            {{aInfo.place}}
-          </div></el-col>
-        </el-row>
-        <el-tag type="info">活动描述:</el-tag>
-        <el-row>
-          <el-col :span="12"><div class="grid-content bg-purple">
-            {{aInfo.description}}
-          </div></el-col>
-        </el-row>
+        <el-form ref="form1" :model="aInfo" label-width="80px">
+          <el-form-item label="活动名">
+            <el-tag type="info">{{aInfo.aname}}</el-tag>
+          </el-form-item>
+          <el-form-item label="发起者">
+            <el-tag type="info">{{aStarterName}}</el-tag>
+          </el-form-item>
+          <el-form-item label="活动地点">
+            <el-tag type="info">{{aInfo.place}}</el-tag>
+          </el-form-item>
+          <el-form-item label="活动描述">
+            <el-tag type="info">{{aInfo.description}}</el-tag>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" style="display:flex; margin-left: 420px;bottom: 12px;background: white">
+          <Button type="primary" size="large" @click="modalVisible=false">
+            关闭
+          </Button>
+        </div>
       </Modal>
       <tables ref="tables" editable searchable search-place="top" v-model="tableData" :columns="columns" @on-delete="handleDelete"/>
       <Button style="margin: 10px 0;" type="primary" @click="exportExcel">导出为Csv文件</Button>
@@ -51,7 +46,7 @@ export default {
       modalVisible: false,
       columns: [
         { title: '活动ID', key: 'aid', sortable: true, width: 100, },
-        { title: '活动名', key: 'aname', sortable: true ,width: 100,},
+        { title: '活动名', key: 'aname', sortable: true ,width: 210,},
         { title: '活动发布者ID', key: 'uid', sortable: true, width: 135, },
         { title: '活动类型', key: 'type', sortable: true, width: 120, },
         { title: '活动地点', key: 'place', sortable: true, width: 120, },
@@ -71,7 +66,6 @@ export default {
               return h('div',[
                 h('Button', {
                   props: {
-                    size: 'small',
                     type: 'primary',
                   },
                   on: {
@@ -94,7 +88,7 @@ export default {
                 }, [h('Button', '批准')],),
                 h('Poptip', {
                   props: {
-                    size: 'small',
+                    type: 'warning',
                     confirm: true,
                     title: '你确定要驳回这个活动?'
                   },

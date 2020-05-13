@@ -1,7 +1,7 @@
 <template>
   <div>
     <Card>
-      <Button type="primary" @click="modalVisible = true" style="margin-top: 10px;">新增用户</Button>
+      <Button type="primary" @click="onAddUser" style="margin-top: 10px;">新增用户</Button>
       <Modal
         v-model="modalVisible"
         title="新增用户">
@@ -44,18 +44,58 @@
       </Modal>
     </Card>
     <Card>
+      <Modal
+        v-model="modalVisible_edit"
+        title="编辑用户资料">
+        <el-form ref="form1" :model="form" label-width="80px">
+          <el-form-item label="用户名">
+            {{form.username}}
+          </el-form-item>
+          <el-form-item label="真实姓名">
+            <el-input v-model="form.name"></el-input>
+          </el-form-item>
+          <el-form-item label="当前身份">
+            {{curIdentity}}
+          </el-form-item>
+          <el-form-item label="修改身份">
+            <el-radio-group v-model="form.status">
+              <el-radio label="学生" name="status"></el-radio>
+              <el-radio label="教师" name="status"></el-radio>
+              <el-radio label="管理员" name="status"></el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="手机号">
+            <el-input v-model="form.phone"></el-input>
+          </el-form-item>
+          <el-form-item label="邮箱">
+            <el-input v-model="form.email"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" style="display:flex; margin-left: 300px;bottom: 12px;background: white">
+          <Button type="warning" size="large" @click='resetPassword'>
+            重置用户密码
+          </Button>
+          <Button type="primary" size="large" @click='onChange'>
+            修改
+          </Button>
+        </div>
+      </Modal>
       <tables ref="tables" editable searchable search-place="top" v-model="tableData" :columns="columns" @on-delete="handleDelete"/>
       <Button style="margin: 10px 0;" type="primary" @click="exportExcel">导出为Csv文件</Button>
     </Card>
   </div>
 </template>
 
-<script>/* eslint-disable */
+<script>
+/* eslint-disable */
 import qs from 'qs';
-  import Tables from '_c/tables'
-  import { getAllUserData } from '@/api/data'
+import Tables from '_c/tables'
+import { getAllUserData } from '@/api/data'
 import { addUserIntoDB } from '@/api/user'
 import {deleteByUserIdFromDB} from "@/api/user";
+import {getUserInfoByUid} from "@/api/user";
+import {updateUserInfo} from "@/api/user";
+import {resetUserPass} from "@/api/user";
 
 export default {
     name: 'user_tables_page',
@@ -65,6 +105,7 @@ export default {
     data () {
       return {
         modalVisible: false,
+        modalVisible_edit: false,
         form: {
           name: '',
           username:'',
@@ -116,13 +157,29 @@ export default {
           }
         ],
         tableData: [],
-
+        uInfo:{
+          name: '',
+          username:'',
+          password: '',
+          status: '',
+          phone: '',
+          email: ''
+        },
+        emptyuInfo:{
+          name: '',
+          username:'',
+          password: '',
+          status: '',
+          phone: '',
+          email: ''
+        },
+        curIdentity:''
       }
     },
-    inject:['reload'],
     methods: {
-      reload1(){
-        this.reload()
+      resetFormFiled(){
+        let _obj = JSON.stringify(this.emptyuInfo);
+        this.form = JSON.parse(_obj);
       },
       flashTable(){
         getAllUserData().then(res => {
@@ -151,8 +208,6 @@ export default {
             console.log(res.data);
             if (res.data.flag) {
               this.$Notice.success({title: '用户删除成功'});
-              // this.tableData.deleteColumns(index)
-              this.reload1();
               this.flashTable();
             } else {
               this.$Notice.error({title: '用户删除失败,' + res.data.msg});
@@ -160,11 +215,14 @@ export default {
           }
         )
       },
-
       exportExcel () {
         this.$refs.tables.exportCsv({
           filename: `table-${(new Date()).valueOf()}.csv`
         })
+      },
+      onAddUser(){
+        this.modalVisible = true;
+        this.resetFormFiled();
       },
       onSubmit() {
         console.log(this.form);
@@ -185,7 +243,7 @@ export default {
             console.log(res.data);
             if(res.data.flag){
               this.$Notice.success({title:'用户添加成功'});
-              this.$refs['form'].resetFields();
+              this.resetFormFiled();
               this.modalVisible=false;
               this.flashTable();
             }
@@ -193,14 +251,78 @@ export default {
               this.$Notice.error({title:'用户添加失败,'+res.data.msg});
             }
           }
-        )
+        );
       },
       edit (index) {
-        this.$Modal.info({
-          title: '用户信息',
-          content: `ID：${this.tableData[index].uid}<br>用户名：${this.tableData[index].username}<br>姓名：${this.tableData[index].name}<br>邮箱：${this.tableData[index].email}`
-        })
+        this.modalVisible_edit = true;
+        let uid_ = qs.stringify({uid: this.tableData[index].uid});
+        getUserInfoByUid(uid_).then(res => {
+            console.log(res.data.user);
+            this.uInfo = res.data.user;
+            this.form = res.data.user;
+            switch (this.form.status) {
+              case 0:
+                this.curIdentity = "学生";
+                break;
+              case 1:
+                this.curIdentity = "教师";
+                break;
+              default:
+                this.curIdentity = "管理员";
+                break;
+            }
+            console.log(this.uInfo);
+          }
+        );
       },
+      onChange(){
+        switch (this.form.status) {
+          case "学生":
+            this.form.status = 0;
+            break;
+          case "教师":
+            this.form.status = 1;
+            break;
+          case 0:
+            break;
+          case 1:
+            break;
+          case 2:
+            break;
+          default:
+            this.form.status = 2;
+            break;
+        }
+        console.log(this.form);
+        let user_ = qs.stringify(this.form);
+        updateUserInfo(user_).then(res => {
+            console.log(res.data);
+            if(res.data.flag){
+              this.$Notice.success({title:'用户信息修改成功'});
+              this.flashTable();
+              this.form = res.data.user;
+            }
+            else{
+              this.$Notice.error({title:'修改失败,'+res.data.msg});
+            }
+          }
+        );
+      },
+      resetPassword(){
+        this.uInfo.password = "123456";
+        console.log(this.uInfo);
+        let user_ = qs.stringify(this.uInfo);
+        resetUserPass(user_).then(res => {
+            console.log(res.data);
+            if(res.data.flag){
+              this.$Notice.success({title:'该用户密码成功重置为123456'});
+            }
+            else{
+              this.$Notice.error({title:'密码重置失败,'+res.data.msg});
+            }
+          }
+        );
+      }
     },
     mounted () {
       getAllUserData().then(res => {
