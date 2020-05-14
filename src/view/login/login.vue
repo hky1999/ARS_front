@@ -7,7 +7,7 @@
     <div class="login-con">
       <Card icon="log-in" title="欢迎登录" :bordered="false">
         <div class="form-con">
-          <login-form @on-success-valid="handleSubmit"></login-form>
+          <login-form @on-success-valid="handleSubmit1"></login-form>
           <p class="login-tip">请使用管理员账号登陆</p>
         </div>
       </Card>
@@ -15,9 +15,11 @@
   </div>
 </template>
 
-<script>
+<script>/* eslint-disable */
+import qs from 'qs';
 import LoginForm from '_c/login-form'
 import { mapActions } from 'vuex'
+import { mylogin } from '@/api/user'
 export default {
   components: {
     LoginForm
@@ -27,17 +29,32 @@ export default {
       'handleLogin',
       'getUserInfo'
     ]),
-    handleSubmit ({ userName, password }) {
-      this.handleLogin({ userName, password }).then(res => {
-        console.log(res);
-        this.getUserInfo().then(res => {
-          console.log(res);
+    handleSubmit1 ({ userName, password }){
+      let status = qs.stringify({username: userName,password:password});
+      mylogin(status).then(res => {
+        console.log(res.data);
+        if (res.data.flag) {
+          this.$Notice.success({title: '登陆成功'});
           this.$router.push({
             name: this.$config.homeName
           })
-        })
-      })
+        } else {
+          this.$Notice.error({title: '登陆失败,' + res.data.msg});
+        }
+        }
+      )
     }
+    // handleSubmit ({ userName, password }) {
+    //   this.handleLogin({ userName, password }).then(res => {
+    //     console.log(res);
+    //     this.getUserInfo().then(res => {
+    //       console.log(res);
+    //       this.$router.push({
+    //         name: this.$config.homeName
+    //       })
+    //     })
+    //   })
+    // }
   }
 }
 </script>

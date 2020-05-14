@@ -93,7 +93,7 @@ import {getUserInfoByUid} from "@/api/user";
 import {updateUserInfo} from "@/api/user";
 import {resetUserPass} from "@/api/user";
 export default {
-  name: 'teacher_tables_page',
+  name: 'student_tables_page',
   components: {
     Tables
   },
@@ -177,7 +177,7 @@ export default {
       this.form = JSON.parse(_obj);
     },
     flashTable(){
-      let status = qs.stringify({status: 1});
+      let status = qs.stringify({status: 2});
       getUserDataofStatus(status).then(res => {
         this.tableData = res.data.userList;
         this.tableData.forEach(o => {
@@ -325,7 +325,7 @@ export default {
     }
   },
   mounted () {
-    let status = qs.stringify({status: 1});
+    let status = qs.stringify({status: 2});
     getUserDataofStatus(status).then(res => {
       console.log(res.data.userList);
       this.tableData = res.data.userList;
@@ -348,7 +348,6 @@ export default {
   }
 }
 </script>
-
 <style>
 
 </style>

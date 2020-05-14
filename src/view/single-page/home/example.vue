@@ -49,7 +49,7 @@ export default {
       ],
       series: [
         {
-          name: '运营商/网络服务',
+          name: '学习',
           type: 'line',
           stack: '总量',
           areaStyle: { normal: {
@@ -58,7 +58,7 @@ export default {
           data: [120, 132, 101, 134, 90, 230, 210]
         },
         {
-          name: '银行/证券',
+          name: '体育',
           type: 'line',
           stack: '总量',
           areaStyle: { normal: {
@@ -67,7 +67,7 @@ export default {
           data: [257, 358, 278, 234, 290, 330, 310]
         },
         {
-          name: '游戏/视频',
+          name: '社交',
           type: 'line',
           stack: '总量',
           areaStyle: { normal: {
@@ -76,7 +76,7 @@ export default {
           data: [379, 268, 354, 269, 310, 478, 358]
         },
         {
-          name: '餐饮/外卖',
+          name: '公益/志愿',
           type: 'line',
           stack: '总量',
           areaStyle: { normal: {
@@ -85,7 +85,7 @@ export default {
           data: [320, 332, 301, 334, 390, 330, 320]
         },
         {
-          name: '快递/电商',
+          name: '劳动',
           type: 'line',
           stack: '总量',
           label: {

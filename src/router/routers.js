@@ -64,7 +64,8 @@ export default [
         name: 'message_page',
         meta: {
           icon: 'md-notifications',
-          title: '消息中心'
+          title: '消息中心',
+          hideInMenu: true
         },
         component: () => import('@/view/single-page/message/index.vue')
       }
@@ -105,6 +106,15 @@ export default [
           title: '学生'
         },
         component: () => import('@/view/components/tables/studentTables.vue')
+      },
+      {
+        path: 'user_admin',
+        name: '管理员',
+        meta: {
+          icon: 'md-grid',
+          title: '管理员'
+        },
+        component: () => import('@/view/components/tables/adminTables.vue')
       },
       {
         path: 'user_add',

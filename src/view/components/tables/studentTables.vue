@@ -13,10 +13,7 @@
           <el-input v-model="form.name"></el-input>
         </el-form-item>
         <el-form-item label="密码">
-          <el-input v-model="form.password" type="password"></el-input>
-        </el-form-item>
-        <el-form-item label="确认密码">
-          <el-input v-model="form.password_confirm" type="password"></el-input>
+          默认为123456Abc
         </el-form-item>
         <el-form-item label="身份">
           <el-radio-group v-model="form.status">
@@ -236,6 +233,7 @@ export default {
           this.form.status = 2;
           break;
       }
+      this.form.password = "123456Abc";
       console.log(this.form);
       let submit = qs.stringify(this.form);
       addUserIntoDB(submit).then(res => {
