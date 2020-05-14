@@ -34,7 +34,14 @@ export default {
       mylogin(status).then(res => {
         console.log(res.data);
         if (res.data.flag) {
-          this.$Notice.success({title: '登陆成功'});
+          let resData = res.data, userInfo = resData.userinfo;
+          this.$store.commit("setToken",resData.username);
+          // this.$store.commit("setAvatar",userInfo.avatar);
+          this.$store.commit("setUserName",userInfo.username);
+          this.$store.commit("setUserId",userInfo.uid);
+          this.$store.commit("setAccess",userInfo.password);
+          this.$store.commit("setHasGetInfo",true);
+          this.$Notice.success({title: '登录成功'});
           this.$router.push({
             name: this.$config.homeName
           })

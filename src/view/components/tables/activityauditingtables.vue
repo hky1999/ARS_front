@@ -36,6 +36,7 @@ import Tables from '_c/tables'
 import { getActivityDataofStatus } from '@/api/data'
 import { authorizeActivityByAid } from '@/api/activity'
 import { getActivityInfoByAid } from '@/api/activity'
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 export default {
   name: 'activity_auditing_tables_page',
   components: {
@@ -76,7 +77,6 @@ export default {
                 }, '查看'),
                 h('Poptip', {
                   props: {
-                    size: 'small',
                     confirm: true,
                     title: '你确定要批准这个活动?'
                   },
@@ -169,6 +169,7 @@ export default {
       console.log(params)
     },
     exportExcel () {
+      console.log(this.auditorId);
       this.$refs.tables.exportCsv({
         filename: `table-${(new Date()).valueOf()}.csv`
       })
@@ -176,10 +177,10 @@ export default {
     handleOperate (index, yesorno) {
       var submit;
       if(yesorno) {
-        submit = qs.stringify({activityId: this.tableData[index].aid, auditor: '1', operation: 'Yes'});
+        submit = qs.stringify({activityId: this.tableData[index].aid, auditor: this.auditorId, operation: 'Yes'});
       }
       else{
-        submit = qs.stringify({activityId: this.tableData[index].aid, auditor: '1', operation: 'No'});
+        submit = qs.stringify({activityId: this.tableData[index].aid, auditor: this.auditorId, operation: 'No'});
       }
       console.log(submit);
       authorizeActivityByAid(submit).then(res => {
@@ -192,6 +193,11 @@ export default {
         }
       })
     },
+  },
+  computed:{
+    ...mapGetters({
+      auditorId: 'getuid'
+    }),
   },
   mounted () {
     let status = qs.stringify({status: 1});
