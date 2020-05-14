@@ -278,9 +278,11 @@ export default {
       switch (this.form.status) {
         case "学生":
           this.form.status = 0;
+          this.curIdentity = "学生";
           break;
         case "教师":
           this.form.status = 1;
+          this.curIdentity = "教师";
           break;
         case 0:
           break;
@@ -290,6 +292,7 @@ export default {
           break;
         default:
           this.form.status = 2;
+          this.curIdentity = "管理员";
           break;
       }
       console.log(this.form);

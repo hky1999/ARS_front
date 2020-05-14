@@ -1,12 +1,12 @@
 import axios from '@/libs/api.request'
 
-export const login = ({ userName, password }) => {
+export const login = ({ username, password }) => {
   const data = {
-    userName,
+    username,
     password
   }
   return axios.request({
-    url: 'login',
+    url: '/api/login',
     data,
     method: 'post'
   })
@@ -40,7 +40,7 @@ export const getUserInfoByUid = (userId) => {
 
 export const updateUserInfo = (user) => {
   return axios.request({
-    url: '/api/user/updateUserInfo',
+    url: '/api/user/resetInfo',
     data: user,
     method: 'post'
   })
