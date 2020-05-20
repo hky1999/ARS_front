@@ -3,10 +3,11 @@
     <Card>
       <Modal
         v-model="modalVisible"
-        title="活动信息">
+        title="活动信息"
+        width = "600">
         <el-form ref="form1" :model="aInfo" label-width="80px">
           <el-form-item label="活动名">
-            <el-tag type="info">{{aInfo.aname}}</el-tag>
+            <span>{{aInfo.aname}}</span>
           </el-form-item>
           <el-form-item label="发起者">
             <el-tag type="info">{{aStarterName}}</el-tag>
@@ -24,7 +25,31 @@
           </Button>
         </div>
       </Modal>
-      <tables ref="tables" editable searchable search-place="top" v-model="tableData" :columns="columns" @on-delete="handleDelete"/>
+      <Modal
+        v-model="modalVisible_delete"
+        title="请确认活动信息，删除将无法恢复"
+        width = "600"
+        ok-text = "确定删除"
+        cancel-text="返回"
+        @on-ok="handleDelete"
+        loading = true
+        @on-cancel="modalVisible_delete=false">
+        <el-form ref="form1" :model="aInfo" label-width="80px">
+          <el-form-item label="活动名">
+            <span>{{aInfo.aname}}</span>
+          </el-form-item>
+          <el-form-item label="发起者">
+            <el-tag type="info">{{aStarterName}}</el-tag>
+          </el-form-item>
+          <el-form-item label="活动地点">
+            <span>{{aInfo.place}}</span>
+          </el-form-item>
+          <el-form-item label="活动描述">
+            <span>{{aInfo.description}}</span>
+          </el-form-item>
+        </el-form>
+      </Modal>
+      <tables ref="tables" editable searchable search-place="top" v-model="tableData" :columns="columns"/>
       <Button style="margin: 10px 0;" type="primary" @click="exportExcel">导出为Csv文件</Button>
     </Card>
   </div>
@@ -34,9 +59,7 @@
 import qs from 'qs';
 import Tables from '_c/tables'
 import { getActivityDataofStatus } from '@/api/data'
-import { authorizeActivityByAid } from '@/api/activity'
 import { getActivityInfoByAid } from '@/api/activity'
-import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 export default {
   name: 'activity_auditing_tables_page',
   components: {
@@ -45,9 +68,10 @@ export default {
   data () {
     return {
       modalVisible: false,
+      modalVisible_delete: false,
       columns: [
         { title: '活动ID', key: 'aid', sortable: true, width: 100, },
-        { title: '活动名', key: 'aname', sortable: true ,width: 210,},
+        { title: '活动名', key: 'aname', sortable: true ,width: 250,},
         { title: '活动发布者ID', key: 'uid', sortable: true, width: 135, },
         { title: '活动类型', key: 'type', sortable: true, width: 120, },
         { title: '活动地点', key: 'place', sortable: true, width: 120, },
@@ -57,11 +81,14 @@ export default {
         { title: '开始时间', key: 'beginTime', editable: true, width: 110, },
         { title: '结束时间', key: 'endTime', editable: true, width: 110, },
         { title: '活动状态', key: 'status', editable: true , width: 100,},
+        { title: '审核人id', key: 'auditor', editable: true, width: 100, },
+        { title: '审核时间', key: 'checkTime', editable: true, width: 110, },
         {
           title: '操作',
           key: 'handle',
+          width: 190,
           button: [
-            (h, params, vm) => {
+            (h, params) => {
               return h('div',[
                 h('Button', {
                   props: {
@@ -73,29 +100,16 @@ export default {
                     }
                   }
                 }, '查看'),
-                h('Poptip', {
-                  props: {
-                    confirm: true,
-                    title: '你确定要批准这个活动?'
-                  },
-                  on: {
-                    'on-ok': () => {
-                      this.handleOperate(params.index,true)
-                    }
-                  }
-                }, [h('Button', '批准')],),
-                h('Poptip', {
+                h('Button', {
                   props: {
                     type: 'warning',
-                    confirm: true,
-                    title: '你确定要驳回这个活动?'
                   },
                   on: {
-                    'on-ok': () => {
-                      this.handleOperate(params.index,false)
+                    click : () => {
+                      this.beforeDelete(params.index)
                     }
                   }
-                },  [h('Button', '驳回')],),
+                }, '删除'),
               ]);
             }
           ]
@@ -123,7 +137,7 @@ export default {
   },
   methods: {
     flashTable(){
-      let status = qs.stringify({status: 1});
+      let status = qs.stringify({status: 5});
       getActivityDataofStatus(status).then(res => {
         console.log(res.data.activityList);
         this.tableData = res.data.activityList;
@@ -158,47 +172,36 @@ export default {
           console.log(res.data.starterName);
           this.aInfo = res.data.activityInfo;
           this.aStarterName = res.data.starterName;
-        console.log(this.aInfo);
-        console.log(this.aStarterName);
+          console.log(this.aInfo);
+          console.log(this.aStarterName);
         }
       );
     },
-    handleDelete (params) {
-      console.log(params)
+    beforeDelete(index) {
+      this.modalVisible_delete = true;
+      let aid_ = qs.stringify({activityId: this.tableData[index].aid});
+      getActivityInfoByAid(aid_).then(res => {
+          console.log(res.data.activityInfo);
+          console.log(res.data.starterName);
+          this.aInfo = res.data.activityInfo;
+          this.aStarterName = res.data.starterName;
+          console.log(this.aInfo);
+          console.log(this.aStarterName);
+        }
+      );
+    },
+    handleDelete (index) {
+      this.modalVisible_delete = false;
+      this.$Message.info('删除成功');
     },
     exportExcel () {
-      console.log(this.auditorId);
       this.$refs.tables.exportCsv({
         filename: `table-${(new Date()).valueOf()}.csv`
       })
-    },
-    handleOperate (index, yesorno) {
-      var submit;
-      if(yesorno) {
-        submit = qs.stringify({activityId: this.tableData[index].aid, auditor: this.auditorId, operation: 'Yes'});
-      }
-      else{
-        submit = qs.stringify({activityId: this.tableData[index].aid, auditor: this.auditorId, operation: 'No'});
-      }
-      console.log(submit);
-      authorizeActivityByAid(submit).then(res => {
-        console.log(res.data);
-        if (res.data.flag) {
-          this.$Notice.success({title: '操作成功'});
-          this.flashTable();
-        } else {
-          this.$Notice.error({title: '操作失败,' + res.data.msg});
-        }
-      })
-    },
-  },
-  computed:{
-    ...mapGetters({
-      auditorId: 'getuid'
-    }),
+    }
   },
   mounted () {
-    let status = qs.stringify({status: 1});
+    let status = qs.stringify({status: 5});
     getActivityDataofStatus(status).then(res => {
       console.log(res.data.activityList);
       this.tableData = res.data.activityList;

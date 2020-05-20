@@ -1,3 +1,4 @@
+/* eslint-disable */
 import Main from '@/components/main'
 import parentView from '@/components/parent-view'
 
@@ -182,34 +183,42 @@ export default [
           title: '已驳回活动'
         },
         component: () => import('@/view/components/tables/activityrejectedtables.vue')
+      },
+      {
+        path: 'activity_end',
+        name: '已结束活动',
+        meta: {
+          icon: 'md-grid',
+          title: '已结束活动'
+        },
+        component: () => import('@/view/components/tables/activityendtables.vue')
       }
     ]
   },
   {
-    path: '/notice_management',
-    name: '通知管理',
+    path: '/post_management',
+    name: '论坛管理',
     meta: {
       icon: 'logo-buffer',
-      title: '通知管理',
-      hideInMenu: true
+      title: '论坛管理',
     },
     component: Main,
     children: [
       {
-        path: 'activity_all',
-        name: '所有通知',
+        path: 'post_all',
+        name: '发帖管理',
         meta: {
           icon: 'md-grid',
-          title: '所有通知'
+          title: '发帖管理'
         },
-        component: () => import('@/view/components/tables/tables.vue')
+        component: () => import('@/view/components/tables/postTables.vue')
       },
       {
-        path: 'activity_auditing',
-        name: '发布通知',
+        path: 'post_comment_all',
+        name: '评论管理',
         meta: {
           icon: 'md-grid',
-          title: '发布通知'
+          title: '评论管理'
         },
         component: () => import('@/view/components/tables/tables.vue')
       }
