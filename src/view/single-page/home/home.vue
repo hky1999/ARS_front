@@ -14,16 +14,14 @@
           <chart-pie style="height: 300px;" :value="pieData" text="用户组成"></chart-pie>
         </Card>
       </i-col>
-      <i-col :md="24" :lg="16" style="margin-bottom: 20px;">
+      <i-col :md="24" :lg="8" style="margin-bottom: 20px;">
         <Card shadow>
-          <chart-bar style="height: 300px;" :value="barData" text="每周用户活跃量"/>
+          <chart-pie style="height: 300px;" :value="pieData_a" text="活动发布情况"></chart-pie>
         </Card>
       </i-col>
     </Row>
-    <Row>
-      <Card shadow>
-        <example style="height: 310px;"/>
-      </Card>
+    <Row :gutter="20" style="margin-top: 10px;">
+
     </Row>
   </div>
 </template>
@@ -32,6 +30,7 @@
 import InforCard from '_c/info-card'
 import CountTo from '_c/count-to'
 import { ChartPie, ChartBar } from '_c/charts'
+import {getHomePageData} from "@/api/data";
 import Example from './example.vue'
 export default {
   name: 'home',
@@ -44,31 +43,50 @@ export default {
   },
   data () {
     return {
+      userNum: '',
+      user_student: '',
+      user_teacher:'',
+      user_manager:'',
+      activityNum:'',
+      activity_auditing:'',
+      activity_approved:'',
+      activity_rejected:'',
+      activity_going: '',
+      activity_end:'',
+      postNum: '',
+      postCommentNum:'',
       inforCardData: [
-        { title: '新增用户', icon: 'md-person-add', count: 803, color: '#2d8cf0' },
-        { title: '累计点击', icon: 'md-locate', count: 232, color: '#19be6b' },
-        { title: '新增活动', icon: 'md-help-circle', count: 142, color: '#ff9900' },
-        { title: '新增热门活动', icon: 'md-share', count: 657, color: '#ed3f14' },
-        { title: '新增评价', icon: 'md-chatbubbles', count: 12, color: '#E46CBB' },
+        { title: '总用户数', icon: 'md-person-add', count: 0, color: '#2d8cf0' },
+        { title: '总活动数', icon: 'md-locate', count: 0, color: '#19be6b' },
+        { title: '已完成活动数', icon: 'md-locate', count: 0, color: '#be8496' },
+        { title: '总发帖数', icon: 'md-help-circle', count: 0, color: '#ff9900' },
+        { title: '总评价数', icon: 'md-share', count: 0, color: '#a844ed' },
       ],
       pieData: [
-        { value: 335, name: '教师' },
-        { value: 310, name: '学生' },
-        { value: 20, name: '其他' },
       ],
-      barData: {
-        Mon: 13253,
-        Tue: 34235,
-        Wed: 26321,
-        Thu: 12340,
-        Fri: 24643,
-        Sat: 1322,
-        Sun: 1324
-      }
+      pieData_a: [
+      ]
     }
   },
   mounted () {
-    //
+    getHomePageData().then(res => {
+      console.log(res.data);
+      this.userNum = res.data.userNum;
+      this.inforCardData[0].count = res.data.userNum;
+      this.inforCardData[1].count = res.data.activityNum;
+      this.inforCardData[2].count = res.data.postNum;
+      this.inforCardData[3].count = res.data.postCommentNum;
+      this.inforCardData[4].count = res.data.activityNumOfStatus[5];
+      console.log(res.data.userNumOfStatus[0]);
+      // console.log(this.pieData[0].value);
+      this.pieData.push({name:'学生',value: res.data.userNumOfStatus[0]});
+      this.pieData.push({name:'教师',value: res.data.userNumOfStatus[1]});
+      this.pieData.push({name:'管理员',value: res.data.userNumOfStatus[2]});
+      this.pieData_a.push({name:'审核中',value: res.data.activityNumOfStatus[1]});
+      this.pieData_a.push({name:'未开始',value: res.data.activityNumOfStatus[2]});
+      this.pieData_a.push({name:'已拒绝',value: res.data.activityNumOfStatus[3]});
+      this.pieData_a.push({name:'开展中',value: res.data.activityNumOfStatus[4]});
+    })
   }
 }
 </script>

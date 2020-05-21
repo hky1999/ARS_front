@@ -7,6 +7,13 @@ export const getAllPost = () => {
   })
 }
 
+export const getAllPostComment = () => {
+  return axios.request({
+    url: '/api/post/comment/get/list',
+    method: 'post'
+  })
+}
+
 export const getPostByPid = pid => {
   return axios.request({
     url: '/api/post/get/info',
@@ -15,10 +22,10 @@ export const getPostByPid = pid => {
   })
 }
 
-export const deletePostByPid = postid => {
+export const deletePostByPid = postId => {
   return axios.request({
     url: '/api/post/delete',
-    data: postid,
+    data: postId,
     method: 'post'
   })
 }

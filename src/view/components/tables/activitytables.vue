@@ -60,6 +60,7 @@ export default {
         {
           title: '操作',
           key: 'handle',
+          width: 100,
           button: [
             (h, params, vm) => {
               return h('div',[

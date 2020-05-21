@@ -34,14 +34,14 @@
         v-model="modalVisible_comment"
         title="评价"
         width = 1200px>
-        <tables ref="tables" editable searchable search-place="top" v-model="commentData" :columns="comment_columns" @on-delete="handleDelete"/>
+        <tables ref="tables" editable searchable search-place="top" v-model="commentData" :columns="comment_columns"/>
         <div slot="footer" style="display:flex; margin-left: 420px;bottom: 12px;background: white">
           <Button type="primary" size="large" @click="modalVisible_comment=false">
             关闭
           </Button>
         </div>
       </Modal>
-      <tables ref="tables" editable searchable search-place="top" v-model="tableData" :columns="columns" @on-delete="handleDelete"/>
+      <tables ref="tables" editable searchable search-place="top" v-model="tableData" :columns="columns"/>
       <Button style="margin: 10px 0;" type="primary" @click="exportExcel">导出为Csv文件</Button>
     </Card>
   </div>
@@ -52,7 +52,8 @@ import qs from 'qs';
 import Tables from '_c/tables'
 import { getAllPost } from '@/api/post'
 import { getPostByPid } from '@/api/post'
-
+import { deletePostByPid } from '@/api/post'
+import { deletePostCommentByPcid } from '@/api/post'
 export default {
   name: 'post_tables_page',
   components: {
@@ -73,7 +74,7 @@ export default {
         {
           title: '操作',
           key: 'handle',
-          width: 100,
+          width: 150,
           button: [
             (h, params, vm) => {
               return h('div',[
@@ -87,6 +88,16 @@ export default {
                     }
                   }
                 }, '查看'),
+                h('Button', {
+                  props: {
+                    type: 'error',
+                  },
+                  on: {
+                    click : () => {
+                      this.deletePost(params.index)
+                    }
+                  }
+                }, '删除'),
               ]);
             }
           ]
@@ -99,23 +110,26 @@ export default {
         { title: '评价者', key: 'childName', sortable: true, width: 135, },
         { title: '被评价者', key: 'fatherName', sortable: true, width: 135, },
         { title: '评价内容', key: 'postComment', sortable: true ,width: 250,},
-        { title: '评价时间', key: 'pcTime',sortable: true, editable: true, width: 130, },
+        { title: '评价时间', key: 'pcTime', width: 110, },
         {
           title: '操作',
           key: 'handle',
+          width: 100,
           button: [
             (h, params, vm) => {
               return h('div',[
-                h('Button', {
-                  props: {
-                    type: 'primary',
-                  },
-                  on: {
-                    click : () => {
-                      this.handleDelete()
+                h('Poptip', {
+                    props: {
+                      confirm: true,
+                      type: 'error',
+                      title: '你确定要删除此评论吗?'
+                    },
+                    on: {
+                      'on-ok': () => {
+                        this.deletePostComment(params.index)
+                      }
                     }
-                  }
-                }, '删除'),
+                  }, [h('Button', '删除')],)
               ]);
             }
           ]
@@ -152,6 +166,41 @@ export default {
     },
     handleDelete (params) {
       console.log(params)
+    },
+    deletePost(index){
+      let submit = qs.stringify({postId:this.tableData[index].pid});
+      deletePostByPid(submit).then(res => {
+          console.log(res.data);
+          if (res.data.flag) {
+            this.$Notice.success({title: '帖子删除成功'});
+            this.flashTable();
+          } else {
+            this.$Notice.error({title: '帖子删除失败,' + res.data.msg});
+          }
+        }
+      )
+    },
+    deletePostComment(index){
+      let submit = qs.stringify({pcId:this.commentData[index].pcid});
+      deletePostCommentByPcid(submit).then(res => {
+          console.log(res.data);
+          if (res.data.flag) {
+            this.$Notice.success({title: '评论删除成功'});
+            this.flashTable();
+            let pid_ = qs.stringify({postId: this.pInfo.pid});
+            // 刷新评论内容
+            getPostByPid(pid_).then(res => {
+                console.log(res.data.post);
+                this.pInfo = res.data.post;
+                this.pStarterName = res.data.username;
+                this.commentData = res.data.postComments;
+              }
+            );
+          } else {
+            this.$Notice.error({title: '评论删除失败,' + res.data.msg});
+          }
+        }
+      )
     },
     exportExcel () {
       this.$refs.tables.exportCsv({

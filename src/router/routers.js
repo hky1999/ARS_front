@@ -220,7 +220,7 @@ export default [
           icon: 'md-grid',
           title: '评论管理'
         },
-        component: () => import('@/view/components/tables/tables.vue')
+        component: () => import('@/view/components/tables/postCommentTables.vue')
       }
     ]
   },

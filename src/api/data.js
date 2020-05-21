@@ -1,5 +1,12 @@
 import axios from '@/libs/api.request'
 
+export const getHomePageData = () => {
+  return axios.request({
+    url: '/api/data/get/all',
+    method: 'post'
+  })
+}
+
 export const getTableData = () => {
   return axios.request({
     url: 'get_table_data',
