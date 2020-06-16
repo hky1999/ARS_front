@@ -5,17 +5,17 @@
         v-model="modalVisible"
         title="活动信息">
         <el-form ref="form1" :model="aInfo" label-width="80px">
-          <el-form-item label="活动名">
-            <el-tag type="info">{{aInfo.aname}}</el-tag>
+          <el-form-item label="活动名:">
+            <span>{{aInfo.aname}}</span>
           </el-form-item>
-          <el-form-item label="发起者">
-            <el-tag type="info">{{aStarterName}}</el-tag>
+          <el-form-item label="发起者:">
+            <span>{{aStarterName}}</span>
           </el-form-item>
-          <el-form-item label="活动地点">
-            <el-tag type="info">{{aInfo.place}}</el-tag>
+          <el-form-item label="活动地点:">
+            <span>{{aInfo.place}}</span>
           </el-form-item>
-          <el-form-item label="活动描述">
-            <el-tag type="info">{{aInfo.description}}</el-tag>
+          <el-form-item label="活动描述:">
+            <span>{{aInfo.description}}</span>
           </el-form-item>
         </el-form>
         <div slot="footer" style="display:flex; margin-left: 420px;bottom: 12px;background: white">
@@ -44,19 +44,19 @@ export default {
     return {
       modalVisible: false,
       columns: [
-        { title: '活动ID', key: 'aid', sortable: true, width: 100, },
-        { title: '活动名', key: 'aname', sortable: true ,width: 250,},
+        { title: '活动ID', key: 'aid', sortable: true, width: 90, },
+        { title: '活动名', key: 'aname', width: 200,},
         { title: '活动发布者ID', key: 'uid', sortable: true, width: 135, },
-        { title: '活动类型', key: 'type', sortable: true, width: 120, },
-        { title: '活动地点', key: 'place', sortable: true, width: 120, },
-        { title: '预计参与人数', key: 'expNum', editable: true, width: 130, },
-        { title: '已参与人数', key: 'joinNum',sortable: true, editable: true, width: 130, },
-        { title: '申请时间', key: 'buildTime', editable: true, width: 110, },
-        { title: '开始时间', key: 'beginTime', editable: true, width: 110, },
-        { title: '结束时间', key: 'endTime', editable: true, width: 110, },
-        { title: '活动状态', key: 'status', editable: true , width: 100,},
-        { title: '审核人id', key: 'auditor', editable: true, width: 100, },
-        { title: '审核时间', key: 'checkTime', editable: true, width: 110, },
+        { title: '活动类型', key: 'type', width: 120, },
+        { title: '活动地点', key: 'place', width: 120, },
+        { title: '预计参与人数', key: 'expNum', width: 130, },
+        { title: '已参与人数', key: 'joinNum',sortable: true,  width: 130, },
+        { title: '申请时间', key: 'buildTime', sortable: true, width: 110, },
+        { title: '开始时间', key: 'beginTime', sortable: true,  width: 110, },
+        { title: '结束时间', key: 'endTime', sortable: true, width: 110, },
+        { title: '活动状态', key: 'status', width: 100,},
+        { title: '审核人id', key: 'auditor', sortable: true,  width: 100, },
+        { title: '审核时间', key: 'checkTime', sortable: true, width: 110, },
         {
           title: '操作',
           key: 'handle',
@@ -125,6 +125,34 @@ export default {
               break;
           }
           o['status'] = status_;
+          let type_ = "";
+          switch (o['type']) {
+            case 10:
+              type_ = "博雅-综合";
+              break;
+            case 11:
+              type_ = "博雅-文化艺术";
+              break;
+            case 12:
+              type_ = "博雅-政治经济";
+              break;
+            case 13:
+              type_ = "博雅-人才培养";
+              break;
+            case 14:
+              type_ = "博雅-理工科技";
+              break;
+            case 20:
+              type_ = "学术讲座";
+              break;
+            case 30:
+              type_ = "学生会话";
+              break;
+            default:
+              type_ = "社团活动";
+              break;
+          }
+          o['type'] = type_;
         })
       })
     },
@@ -175,6 +203,34 @@ export default {
             break;
         }
         o['status'] = status_;
+        let type_ = "";
+        switch (o['type']) {
+          case 10:
+            type_ = "博雅-综合";
+            break;
+          case 11:
+            type_ = "博雅-文化艺术";
+            break;
+          case 12:
+            type_ = "博雅-政治经济";
+            break;
+          case 13:
+            type_ = "博雅-人才培养";
+            break;
+          case 14:
+            type_ = "博雅-理工科技";
+            break;
+          case 20:
+            type_ = "学术讲座";
+            break;
+          case 30:
+            type_ = "学生会话";
+            break;
+          default:
+            type_ = "社团活动";
+            break;
+        }
+        o['type'] = type_;
       })
     })
   }

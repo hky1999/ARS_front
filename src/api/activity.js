@@ -17,4 +17,20 @@ export const getActivityInfoByAid = (aid) => {
   })
 }
 
+export const getActivityCommentByAid = (aid) => {
+  return axios.request({
+    url: '/api/comment/get/activity',
+    data: aid,
+    method: 'post'
+  })
+}
+
+export const deleteActivityComment = (commentId) => {
+  return axios.request({
+    url: '/api/comment/delete',
+    data: commentId,
+    method: 'post'
+  })
+}
+
 

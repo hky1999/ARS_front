@@ -5,21 +5,50 @@
         v-model="modalVisible"
         title="活动信息">
         <el-form ref="form1" :model="aInfo" label-width="80px">
-          <el-form-item label="活动名">
-            <el-tag type="info">{{aInfo.aname}}</el-tag>
+          <el-form-item label="活动名:">
+            <span>{{aInfo.aname}}</span>
           </el-form-item>
-          <el-form-item label="发起者">
-            <el-tag type="info">{{aStarterName}}</el-tag>
+          <el-form-item label="发起者:">
+            <span>{{aStarterName}}</span>
           </el-form-item>
-          <el-form-item label="活动地点">
-            <el-tag type="info">{{aInfo.place}}</el-tag>
+          <el-form-item label="活动地点:">
+            <span>{{aInfo.place}}</span>
           </el-form-item>
-          <el-form-item label="活动描述">
-            <el-tag type="info">{{aInfo.description}}</el-tag>
+          <el-form-item label="活动描述:">
+            <span>{{aInfo.description}}</span>
           </el-form-item>
         </el-form>
         <div slot="footer" style="display:flex; margin-left: 420px;bottom: 12px;background: white">
           <Button type="primary" size="large" @click="modalVisible=false">
+            关闭
+          </Button>
+        </div>
+      </Modal>
+      <Modal
+        v-model="modalVisible_1"
+        title="请填写驳回理由">
+        <el-form ref="form1" :model="aInfo" label-width="80px">
+          <el-form-item label="活动名:">
+            <span>{{aInfo.aname}}</span>
+          </el-form-item>
+          <el-form-item label="发起者:">
+            <span>{{aStarterName}}</span>
+          </el-form-item>
+          <el-form-item label="活动地点:">
+            <span>{{aInfo.place}}</span>
+          </el-form-item>
+          <el-form-item label="活动描述:">
+            <span>{{aInfo.description}}</span>
+          </el-form-item>
+          <el-form-item label="驳回理由:">
+            <el-input v-model="feedback_reason" placeholder="请输入"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" style="display:flex; margin-left: 350px;bottom: 12px;background: white">
+          <Button type="warning" size="large" @click="handleOperate1">
+            驳回
+          </Button>
+          <Button type="primary" size="large" @click="modalVisible_1=false">
             关闭
           </Button>
         </div>
@@ -45,21 +74,24 @@ export default {
   data () {
     return {
       modalVisible: false,
+      modalVisible_1: false,
+      feedback_reason: '',
       columns: [
-        { title: '活动ID', key: 'aid', sortable: true, width: 100, },
-        { title: '活动名', key: 'aname', sortable: true ,width: 210,},
+        { title: '活动ID', key: 'aid', sortable: true, width: 90, },
+        { title: '活动名', key: 'aname', width: 200,},
         { title: '活动发布者ID', key: 'uid', sortable: true, width: 135, },
-        { title: '活动类型', key: 'type', sortable: true, width: 120, },
-        { title: '活动地点', key: 'place', sortable: true, width: 120, },
-        { title: '预计参与人数', key: 'expNum', editable: true, width: 130, },
-        { title: '已参与人数', key: 'joinNum',sortable: true, editable: true, width: 130, },
-        { title: '申请时间', key: 'buildTime', editable: true, width: 110, },
-        { title: '开始时间', key: 'beginTime', editable: true, width: 110, },
-        { title: '结束时间', key: 'endTime', editable: true, width: 110, },
-        { title: '活动状态', key: 'status', editable: true , width: 100,},
+        { title: '活动类型', key: 'type',width: 120, },
+        { title: '活动地点', key: 'place',width: 120, },
+        { title: '预计参与人数', key: 'expNum',sortable: true,  width: 130, },
+        { title: '已参与人数', key: 'joinNum',sortable: true, width: 130, },
+        { title: '申请时间', key: 'buildTime', sortable: true, width: 110, },
+        { title: '开始时间', key: 'beginTime',sortable: true, width: 110, },
+        { title: '结束时间', key: 'endTime',sortable: true, width: 110, },
+        { title: '活动状态', key: 'status', width: 100,},
         {
           title: '操作',
           key: 'handle',
+          width: 210,
           button: [
             (h, params, vm) => {
               return h('div',[
@@ -84,18 +116,16 @@ export default {
                     }
                   }
                 }, [h('Button', '批准')],),
-                h('Poptip', {
+                h('Button', {
                   props: {
                     type: 'warning',
-                    confirm: true,
-                    title: '你确定要驳回这个活动?'
                   },
                   on: {
-                    'on-ok': () => {
-                      this.handleOperate(params.index,false)
+                    click: () => {
+                      this.beforeOperate1(params.index)
                     }
                   }
-                },  [h('Button', '驳回')],),
+                }, '驳回'),
               ]);
             }
           ]
@@ -147,6 +177,34 @@ export default {
               break;
           }
           o['status'] = status_;
+          let type_ = "";
+          switch (o['type']) {
+            case 10:
+              type_ = "博雅-综合";
+              break;
+            case 11:
+              type_ = "博雅-文化艺术";
+              break;
+            case 12:
+              type_ = "博雅-政治经济";
+              break;
+            case 13:
+              type_ = "博雅-人才培养";
+              break;
+            case 14:
+              type_ = "博雅-理工科技";
+              break;
+            case 20:
+              type_ = "学术讲座";
+              break;
+            case 30:
+              type_ = "学生会话";
+              break;
+            default:
+              type_ = "社团活动";
+              break;
+          }
+          o['type'] = type_;
         })
       })
     },
@@ -175,10 +233,10 @@ export default {
     handleOperate (index, yesorno) {
       var submit;
       if(yesorno) {
-        submit = qs.stringify({activityId: this.tableData[index].aid, auditor: this.auditorId, operation: 'Yes'});
+        submit = qs.stringify({activityId: this.tableData[index].aid, auditor: this.auditorId, operation: 'Yes', reason: ''});
       }
       else{
-        submit = qs.stringify({activityId: this.tableData[index].aid, auditor: this.auditorId, operation: 'No'});
+        submit = qs.stringify({activityId: this.tableData[index].aid, auditor: this.auditorId, operation: 'No',reason: ''});
       }
       console.log(submit);
       authorizeActivityByAid(submit).then(res => {
@@ -186,6 +244,35 @@ export default {
         if (res.data.flag) {
           this.$Notice.success({title: '操作成功'});
           this.flashTable();
+        } else {
+          this.$Notice.error({title: '操作失败,' + res.data.msg});
+        }
+      })
+    },
+    beforeOperate1(index){
+      this.modalVisible_1 = true;
+      this.feedback_reason = '';
+      let aid_ = qs.stringify({activityId: this.tableData[index].aid});
+      getActivityInfoByAid(aid_).then(res => {
+          console.log(res.data.activityInfo);
+          console.log(res.data.starterName);
+          this.aInfo = res.data.activityInfo;
+          this.aStarterName = res.data.starterName;
+          console.log(this.aInfo);
+          console.log(this.aStarterName);
+        }
+      );
+    },
+    handleOperate1 () {
+      var submit;
+      submit = qs.stringify({activityId: this.aInfo.aid, auditor: this.auditorId, operation: 'No',reason: this.feedback_reason});
+      console.log(submit);
+      authorizeActivityByAid(submit).then(res => {
+        console.log(res.data);
+        if (res.data.flag) {
+          this.$Notice.success({title: '操作成功'});
+          this.flashTable();
+          this.modalVisible_1 = false;
         } else {
           this.$Notice.error({title: '操作失败,' + res.data.msg});
         }
@@ -222,6 +309,34 @@ export default {
             break;
         }
         o['status'] = status_;
+        let type_ = "";
+        switch (o['type']) {
+          case 10:
+            type_ = "博雅-综合";
+            break;
+          case 11:
+            type_ = "博雅-文化艺术";
+            break;
+          case 12:
+            type_ = "博雅-政治经济";
+            break;
+          case 13:
+            type_ = "博雅-人才培养";
+            break;
+          case 14:
+            type_ = "博雅-理工科技";
+            break;
+          case 20:
+            type_ = "学术讲座";
+            break;
+          case 30:
+            type_ = "学生会话";
+            break;
+          default:
+            type_ = "社团活动";
+            break;
+        }
+        o['type'] = type_;
       })
     })
   }

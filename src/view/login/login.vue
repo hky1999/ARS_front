@@ -4,6 +4,14 @@
 
 <template>
   <div class="login">
+    <div class = "login-left">
+        <span class="login-title">
+          北航大学生活动发布与社交平台
+        </span>
+      <span class="login-title-2">
+          管理端
+        </span>
+    </div>
     <div class="login-con">
       <Card icon="log-in" title="欢迎登录" :bordered="false">
         <div class="form-con">

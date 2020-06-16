@@ -2,7 +2,7 @@
   <div>
     <div v-if="searchable && searchPlace === 'top'" class="search-con search-con-top">
       <Select v-model="searchKey" class="search-col">
-        <Option v-for="item in columns" v-if="item.key !== 'handle'" :value="item.key" :key="`search-col-${item.key}`">{{ item.title }}</Option>
+        <Option v-for="item in columns" v-if="item.key !== 'handle' && item.key!== 'cid' &&item.key!== 'uid' && item.key!== 'aid' && item.key!== 'pid' && item.key!== 'pcid'" :value="item.key" :key="`search-col-${item.key}`">{{ item.title }}</Option>
       </Select>
       <Input @on-change="handleClear" clearable placeholder="输入关键字搜索" class="search-input" v-model="searchValue"/>
       <Button @click="handleSearch" class="search-btn" type="primary"><Icon type="search"/>&nbsp;&nbsp;搜索</Button>
@@ -207,11 +207,13 @@ export default {
     },
     setDefaultSearchKey () {
       this.searchKey = this.columns[0].key !== 'handle' ? this.columns[0].key : (this.columns.length > 1 ? this.columns[1].key : '')
+      console.log(this.searchKey)
     },
     handleClear (e) {
       if (e.target.value === '') this.insideTableData = this.value
     },
     handleSearch () {
+      console.log(this.searchKey)
       this.insideTableData = this.value.filter(item => item[this.searchKey].indexOf(this.searchValue) > -1)
     },
     handleTableData () {

@@ -1,24 +1,25 @@
-<template>
+<template xmlns:word-break="http://www.w3.org/1999/xhtml">
   <div>
     <Card>
       <Modal
         v-model="modalVisible"
-        title="帖子信息">
+        title="帖子信息"
+        width="900px">
         <el-form ref="form1" :model="pInfo" label-width="80px">
-          <el-form-item label="题目">
-            <el-tag type="info">{{pInfo.postTitle}}</el-tag>
+          <el-form-item label="题目:">
+            <span style = "word-break:break-all">{{pInfo.postTitle}}</span>
           </el-form-item>
-          <el-form-item label="发布者">
-            <el-tag type="info">{{pStarterName}}</el-tag>
+          <el-form-item label="发布者:">
+            <span style = "word-break:break-all">{{pStarterName}}</span>
           </el-form-item>
-          <el-form-item label="发帖时间">
-            <el-tag type="info">{{pInfo.postTime}}</el-tag>
+          <el-form-item label="发帖时间:">
+            <span style = "word-break:break-all">{{pInfo.postTime}}</span>
           </el-form-item>
-          <el-form-item label="评价数">
-            <el-tag type="info">{{pInfo.commentNum}}</el-tag>
+          <el-form-item label="评价数:">
+            <span style = "word-break:break-all">{{pInfo.commentNum}}</span>
           </el-form-item>
-          <el-form-item label="内容">
-            <el-tag type="info">{{pInfo.content}}</el-tag>
+          <el-form-item label="内容:">
+            <span style = "word-break:break-all">{{pInfo.content}}</span>
           </el-form-item>
         </el-form>
         <div slot="footer" style="display:flex; margin-left: 320px;bottom: 12px;background: white">
@@ -26,6 +27,36 @@
             查看评价
           </Button>
           <Button type="primary" size="large" @click="modalVisible=false">
+            关闭
+          </Button>
+        </div>
+      </Modal>
+      <Modal
+        v-model="modalVisible_delete"
+        width="900px"
+        title="请确认删除的帖子信息">
+        <el-form ref="form1" :model="pInfo" label-width="80px">
+          <el-form-item label="题目:">
+            <span style = "word-break:break-all">{{pInfo.postTitle}}</span>
+          </el-form-item>
+          <el-form-item label="发布者:">
+            <span style = "word-break:break-all">{{pStarterName}}</span>
+          </el-form-item>
+          <el-form-item label="发帖时间:">
+            <span style = "word-break:break-all">{{pInfo.postTime}}</span>
+          </el-form-item>
+          <el-form-item label="评价数:">
+            <span style = "word-break:break-all">{{pInfo.commentNum}}</span>
+          </el-form-item>
+          <el-form-item label="内容:">
+            <span style = "word-break:break-all">{{pInfo.content}}</span>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" style="display:flex; margin-left: 700px;bottom: 12px;background: white">
+          <Button type="warning" size="large" @click="deletePost">
+            确认删除
+          </Button>
+          <Button type="primary" size="large" @click="modalVisible_delete=false">
             关闭
           </Button>
         </div>
@@ -62,6 +93,7 @@ export default {
   data () {
     return {
       modalVisible: false,
+      modalVisible_delete: false,
       modalVisible_comment: false,
       columns: [
         { title: '帖子ID', key: 'pid', sortable: true, width: 100, },
@@ -94,7 +126,7 @@ export default {
                   },
                   on: {
                     click : () => {
-                      this.deletePost(params.index)
+                      this.confirmDelete(params.index)
                     }
                   }
                 }, '删除'),
@@ -145,6 +177,7 @@ export default {
         commentNum:'',
       },
       pStarterName: '',
+      pDeleteIndex: ''
     }
   },
   methods: {
@@ -164,16 +197,29 @@ export default {
         }
       );
     },
+    confirmDelete(index){
+      let pid_ = qs.stringify({postId: this.tableData[index].pid});
+      getPostByPid(pid_).then(res => {
+          console.log(res.data.post);
+          this.pInfo = res.data.post;
+          this.pStarterName = res.data.username;
+          this.commentData = res.data.postComments;
+        }
+      );
+      this.pDeleteIndex = index;
+      this.modalVisible_delete = true;
+    },
     handleDelete (params) {
       console.log(params)
     },
-    deletePost(index){
-      let submit = qs.stringify({postId:this.tableData[index].pid});
+    deletePost(){
+      let submit = qs.stringify({postId:this.tableData[this.pDeleteIndex].pid});
       deletePostByPid(submit).then(res => {
           console.log(res.data);
           if (res.data.flag) {
             this.$Notice.success({title: '帖子删除成功'});
             this.flashTable();
+            this.modalVisible_delete = false;
           } else {
             this.$Notice.error({title: '帖子删除失败,' + res.data.msg});
           }

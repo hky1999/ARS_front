@@ -118,6 +118,15 @@ export default [
         component: () => import('@/view/components/tables/adminTables.vue')
       },
       {
+        path: 'user_feedback',
+        name: '用户反馈',
+        meta: {
+          icon: 'md-grid',
+          title: '用户反馈'
+        },
+        component: () => import('@/view/components/tables/feedbacktables.vue')
+      },
+      {
         path: 'user_add',
         name: '添加新用户',
         meta: {
